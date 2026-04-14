@@ -6,3 +6,4 @@ Three.js 3Dパーツライブラリ
 - `lowpoly_CTree01.jsx` — 針葉樹・ローポリ・ミニマル
 - `lowpoly_rock01.jsx` — 岩・ローポリ・ミニマル
 - `lowpoly_rice-weed01.jsx` — イネ科草・ローポリ・ミニマル
+- `lowpoly_rosetteweed01.jsx` — ロゼット草・ローポリ・ミニマル
