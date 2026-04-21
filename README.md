@@ -7,3 +7,4 @@ Three.js 3Dパーツライブラリ
 - `lowpoly_rock01.jsx` — 岩・ローポリ・ミニマル
 - `lowpoly_rice-weed01.jsx` — イネ科草・ローポリ・ミニマル
 - `lowpoly_rosetteweed01.jsx` — ロゼット草・ローポリ・ミニマル
+- `subsyan.jsx` — サブちゃん・3D世界の現場監督アバター
