@@ -10,7 +10,9 @@ Three.js 3Dパーツライブラリ
 - `sabchan.jsx` — サブちゃん・3D世界の現場監督アバター
 
 ## landmark（建造物）
-- `lowpoly_torii01.jsx` — 鳥居・ローポリ・ミニマル
-- `lowpoly_lighthouse01.jsx` — 灯台・ローポリ・ミニマル
-- `lowpoly_windmill01.jsx` — 風車・ローポリ・ミニマル・羽根回転アニメあり
-- `TORCH.jsx` — 惑星coccolithのランドマーク #01・三角錐クリップ構造・発光あり
+> React不要のThree.jsモジュール。`createXXX()` でGroupを返すので `scene.add()` で使用。
+
+- `lowpoly_torii01.js` — 鳥居・ローポリ・ミニマル
+- `lowpoly_lighthouse01.js` — 灯台・ローポリ・ミニマル
+- `lowpoly_windmill01.js` — 風車・ローポリ・ミニマル・`update()` で羽根回転
+- `TORCH.js` — 惑星coccolithのランドマーク #01・三角錐クリップ構造・発光あり
