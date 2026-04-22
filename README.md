@@ -13,3 +13,4 @@ Three.js 3Dパーツライブラリ
 - `lowpoly_torii01.jsx` — 鳥居・ローポリ・ミニマル
 - `lowpoly_lighthouse01.jsx` — 灯台・ローポリ・ミニマル
 - `lowpoly_windmill01.jsx` — 風車・ローポリ・ミニマル・羽根回転アニメあり
+- `TORCH.jsx` — 惑星coccolithのランドマーク #01・三角錐クリップ構造・発光あり
