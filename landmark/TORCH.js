@@ -198,7 +198,7 @@ export function createTORCH() {
     new THREE.MeshStandardMaterial({
       color: 0xE4E4D6,
       emissive: new THREE.Color(0xE4E4D6),
-      emissiveIntensity: 0.6,
+      emissiveIntensity: 2.0,
       flatShading: true,
       roughness: 0.7,
       metalness: 0.2,
@@ -207,6 +207,12 @@ export function createTORCH() {
     capTF
   );
   TF.position.set(0, 8, 2.5);
+
+  // TF位置に光源 (worldスケール scale≈7.2 / 高さ115m 使用時想定)
+  // TF TORCH-local pos(0,8,2.5) ≒ 地表+110m / intensity=50000cd / distance=600m
+  const tfLight = new THREE.PointLight(0xfff0d0, 50000, 600)
+  tfLight.position.set(0, 8, 2.5)
+  TORCH.add(tfLight)
 
   TORCH.add(TI);
   TORCH.add(TS1);
