@@ -10,6 +10,7 @@ Three.js 3Dパーツライブラリ
 - `sabchan.jsx` — サブちゃん・3D世界の現場監督アバター
 - `forest1.jsx` — ローポリ球群の森・`createForest1()` エクスポート・シード固定乱数・半透明球あり
 - `forest2.jsx` — 混成林・ローポリ・広葉樹6本＋針葉樹7本・フォグあり
+- `cloud1.jsx` — ローポリ白球群の雲・`createCloud1()` エクスポート・シード固定乱数・半透明球24個
 
 ## landmark（建造物）
 > React不要のThree.jsモジュール。`createXXX()` でGroupを返すので `scene.add()` で使用。
