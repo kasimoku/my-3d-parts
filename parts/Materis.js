@@ -3,26 +3,41 @@
  * しあんのThree.js マテリアルライブラリ
  *
  * 使い方:
- *   import { createMateris, applyMaterisColors } from './Materis.js';
+ *   import { createMateris, createMaterisMesh, applyMaterisColors } from './Materis.js';
  *
- *   const mat = createMateris(1);   // ざらざら
+ *   // 形状込みでまるごと使う（おすすめ）
+ *   const mesh = createMaterisMesh(1);  // ざらざら板
+ *   group.add(mesh);                    // 底面が原点に来るよう調整済み
+ *
+ *   // マテリアルだけ使う
+ *   const mat = createMateris(1);
  *   mesh.material = mat;
  *
- *   // 5番（頂点カラー）を使う場合は色も仕込む
+ *   // 5番（頂点カラー）をマテリアルだけ使う場合は色も仕込む
  *   const mat5 = createMateris(5);
  *   applyMaterisColors(geometry, yMin, yMax);
  *   mesh.material = mat5;
  *
  * ラインナップ:
- *   1: 🪨 ざらざら   — グレー / shininess:2  / specular暗め
- *   2: 🪞 ツルツル   — ダークグレー / shininess:120 / specular明るめ
- *   3: 💚 ライム発光 — emissive(0x88ff22) / emissiveIntensity:0.6
- *   4: 🕸️ ワイヤー   — 青 / wireframe:true
- *   5: 🎨 頂点カラー — vertexColors:true / ツヤツヤ / 赤↔青グラデーション
- *      └ applyMaterisColors(geo, yMin, yMax) でジオメトリに色を仕込んでから使う
+ *   1: 🪨 ざらざら   — 板(8×1×5) / グレー / shininess:2  / specular暗め
+ *   2: 🪞 ツルツル   — 板(8×1×5) / ダークグレー / shininess:120 / specular明るめ
+ *   3: 💚 ライム発光 — 板(8×1×5) / emissive(0x88ff22) / emissiveIntensity:0.6
+ *   4: 🕸️ ワイヤー   — 板(8×1×5) / 青 / wireframe:true
+ *   5: 🎨 頂点カラー — 縦板(4×8×4) / vertexColors:true / ツヤツヤ / 赤↔青グラデーション
+ *      └ createMaterisMesh(5) なら applyMaterisColors も自動で呼ばれる
  */
 
 import * as THREE from 'three';
+
+// ── ジオメトリ定義 ─────────────────────────────────────────
+
+const _geoDefs = {
+  1: () => new THREE.BoxGeometry(8, 1, 5),
+  2: () => new THREE.BoxGeometry(8, 1, 5),
+  3: () => new THREE.BoxGeometry(8, 1, 5),
+  4: () => new THREE.BoxGeometry(8, 1, 5),
+  5: () => new THREE.BoxGeometry(4, 8, 4),  // 縦長で高さグラデが映える
+};
 
 // ── マテリアル定義 ──────────────────────────────────────────
 
@@ -77,6 +92,23 @@ export function createMateris(n) {
   }
   // インスタンスを毎回新しく返す（複数メッシュで独立して使えるように）
   return _defs[n]();
+}
+
+/**
+ * 形状込みでメッシュを生成する（底面が y=0 になるよう調整済み）
+ * @param {number} n - 1〜5
+ * @returns {THREE.Mesh}
+ */
+export function createMaterisMesh(n) {
+  if (!_geoDefs[n]) {
+    console.warn(`Materis: ${n}番は存在しません。1〜5を指定してください。`);
+    return new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshPhongMaterial({ color: 0xff00ff }));
+  }
+  const geo = _geoDefs[n]();
+  if (n === 5) applyMaterisColors(geo, -4, 4);
+  const mesh = new THREE.Mesh(geo, createMateris(n));
+  mesh.position.y = n === 5 ? 4 : 0.5;  // 底面が原点(地表)に接するよう半高さ分上げる
+  return mesh;
 }
 
 /**
