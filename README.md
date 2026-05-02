@@ -13,6 +13,11 @@ Three.js 3Dパーツライブラリ
 - `cloud1.jsx` — ローポリ白球群の雲・`createCloud1()` エクスポート・シード固定乱数・半透明球24個
 - `Frame.jsx` — ローポリ格子フレーム・S/M/L の3サイズ (`createFrameS` / `createFrameM` / `createFrameL`)・外周◻︎構造・縦柱＋横梁間隔1統一
 - `Frame_6-4.jsx` — 6x4 ローポリフレーム・`createFrame64()` エクスポート・外周縦柱＋横梁y=1〜6
+- `Materis1.jsx` — マテリス1・ざらざら・`createMateris1()` エクスポート・2スラブ＋目＋瞳の複合キャラクター形状・グレー/shininess:2
+- `Materis2.jsx` — マテリス2・ツルツル・`createMateris2()` エクスポート・ダークグレー/shininess:120
+- `Materis3.jsx` — マテリス3・ライム発光・`createMateris3()` エクスポート・emissive(0x88ff22)/emissiveIntensity:0.6
+- `Materis4.jsx` — マテリス4・ワイヤー・`createMateris4()` エクスポート・青/wireframe:true
+- `Materis5.jsx` — マテリス5・頂点カラー・`createMateris5()` エクスポート・赤↔青グラデーション/shininess:120
 
 ## landmark（建造物）
 > React不要のThree.jsモジュール。`createXXX()` でGroupを返すので `scene.add()` で使用。
