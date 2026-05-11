@@ -139,7 +139,7 @@ export function createSabchan(scene) {
   sab.position.y = 0;
   scene.add(sab);
 
-  return { group: sab, headGroup, nose, sensor };
+  return { group: sab, head, inhead, nose, sensor };
 }
 
 /**
