@@ -56,17 +56,21 @@ export function createSabchan(scene) {
 
   const sab = new THREE.Group();
 
+  // HEAD GROUP（頭・耳・目・鼻・センサーをまとめてアニメーション）
+  const headGroup = new THREE.Group();
+  sab.add(headGroup);
+
   // HEAD
   const head = new THREE.Mesh(makeHeadGeo(), mHead);
   head.scale.set(6/3.2, 5/3.2, 4/3.2 * 1.1);
   head.position.z = 0.0;
-  sab.add(head);
+  headGroup.add(head);
 
   // INHEAD
   const inhead = new THREE.Mesh(makeHeadGeo(), mInhead);
   inhead.scale.set(6/3.2 * 0.9, 5/3.2 * 0.9, 4/3.2 * 0.9);
   inhead.position.z = 0.5;
-  sab.add(inhead);
+  headGroup.add(inhead);
 
   // EARS × 2
   const earGeo = new THREE.TorusGeometry(1.5, 0.3, 8, 26);
@@ -74,11 +78,11 @@ export function createSabchan(scene) {
     const ear = new THREE.Mesh(earGeo, mD);
     ear.position.set(s * 2.5, 0.10, 0.0);
     ear.rotation.y = Math.PI / 2;
-    sab.add(ear);
+    headGroup.add(ear);
 
     const pad = new THREE.Mesh(new THREE.SphereGeometry(1.5, 8, 6), mE);
     pad.position.set(s * 2.5, 0.10, 0.0);
-    sab.add(pad);
+    headGroup.add(pad);
   });
 
   // EYES × 2
@@ -88,18 +92,18 @@ export function createSabchan(scene) {
     eye.position.set(s * 1.03, 0.04, 2.10);
     eye.rotation.x = eyeRX;
     eye.rotation.y = s * (Math.PI / 18);
-    sab.add(eye);
+    headGroup.add(eye);
   });
 
   // NOSE
   const nose = new THREE.Mesh(new THREE.SphereGeometry(0.184, 5, 4), mAccent);
   nose.position.set(0, -0.44, 2.29);
-  sab.add(nose);
+  headGroup.add(nose);
 
   // SENSOR
   const sensor = new THREE.Mesh(new THREE.SphereGeometry(0.184, 5, 4), mAccent);
   sensor.position.set(0, 0.30, 2.30);
-  sab.add(sensor);
+  headGroup.add(sensor);
 
   // NECK × 2
   [-1.33, 1.33].forEach((x) => {
@@ -135,16 +139,25 @@ export function createSabchan(scene) {
   sab.position.y = 0;
   scene.add(sab);
 
-  return { group: sab, head, inhead };
+  return { group: sab, headGroup, nose, sensor };
 }
 
 /**
- * アニメーションループ内で呼ぶ
- * @param {{ group, head, inhead }} sabchan
+ * アニメーションループ内で呼ぶ（group のワールド位置は呼び出し元が管理）
+ * @param {{ head, inhead, nose, sensor }} sabchan
  * @param {number} t  elapsed time (seconds)
  */
-export function animateSabchan({ group, head, inhead }, t) {
-  group.position.y = Math.sin(t * 0.72) * 0.12;
-  head.rotation.z  = Math.sin(t * 0.51) * 0.046;
-  inhead.rotation.z = Math.sin(t * 0.51) * 0.046;
+export function animateSabchan({ head, inhead, nose, sensor }, t) {
+  // 頭の左右ゆらぎ
+  const tilt = Math.sin(t * 0.51) * 0.18;
+  head.rotation.z   = tilt;
+  inhead.rotation.z = tilt;
+  // 頭のうなずき
+  const nod = Math.sin(t * 0.37) * 0.12;
+  head.rotation.x   = nod;
+  inhead.rotation.x = nod;
+  // センサーと鼻のパルス
+  const pulse = 1.0 + Math.sin(t * 2.8) * 0.35;
+  nose.scale.setScalar(pulse);
+  sensor.scale.setScalar(pulse);
 }
