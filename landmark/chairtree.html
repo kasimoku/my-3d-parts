@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>chairtree</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #e4e8ec; overflow: hidden; width: 100vw; height: 100vh; }
+#label {
+  position: fixed; top: 12px; left: 12px;
+  background: rgba(255,255,255,0.85); border-radius: 10px;
+  padding: 8px 14px; font-size: 13px; color: #444; line-height: 1.7;
+  font-family: sans-serif; pointer-events: none;
+}
+</style>
+</head>
+<body>
+<div id="label">
+  <span style="color:#888">ドラッグで回転 / スクロールでズーム</span>
+</div>
+<canvas id="c"></canvas>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const DEG = Math.PI / 180;
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.setSize(innerWidth, innerHeight);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xe4e8ec);
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 200);
+
+// 地面
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(24, 24),
+  new THREE.MeshPhongMaterial({ color: 0xc8ccc8 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -4;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ライト
+scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+const sun = new THREE.DirectionalLight(0xfff8f0, 0.5);
+sun.position.set(5, 8, 4);
+sun.castShadow = true;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xd0e0ff, 0.5);
+fill.position.set(-4, 2, -3);
+scene.add(fill);
+
+// 軸ドット
+const posVerts = [], negVerts = [];
+for (let i = -10; i <= 10; i++) {
+  const arr = i < 0 ? negVerts : posVerts;
+  arr.push(i, 0, 0, 0, i, 0, 0, 0, i);
+}
+[[posVerts, 0x000000], [negVerts, 0x5070D0]].forEach(([verts, color]) => {
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color, size: 4, sizeAttenuation: false })));
+});
+
+// メイングループ
+const mainGroup = new THREE.Group();
+scene.add(mainGroup);
+
+// 共通マテリアル
+const mat = new THREE.MeshPhongMaterial({ color: 0x63594C, flatShading: true });
+const hexGeo = new THREE.CylinderGeometry(5 / 7, 1, 4, 6);
+const triGeo = new THREE.ConeGeometry(1, 2, 3);
+
+function createPillarGroup(zRot = 0) {
+  const group = new THREE.Group();
+
+  const cyl = new THREE.Mesh(hexGeo, mat);
+  cyl.position.y = 2;
+  cyl.castShadow = true;
+  group.add(cyl);
+
+  const cyl2 = new THREE.Mesh(hexGeo, mat);
+  cyl2.scale.set(0.72, 0.36, 0.72);
+  cyl2.position.set(-Math.sign(zRot) * 0.2, 4.5, 0);
+  cyl2.rotation.z = Math.sign(zRot) * 12 * DEG;
+  cyl2.castShadow = true;
+  group.add(cyl2);
+
+  if (zRot > 0) {
+    const cyl3 = new THREE.Mesh(hexGeo, mat);
+    cyl3.scale.set(0.432, 0.54, 0.432);
+    cyl3.position.set(-0.7, 5.5, 0);
+    cyl3.rotation.z = 40 * DEG;
+    cyl3.castShadow = true;
+    group.add(cyl3);
+  }
+
+  for (let i = 0; i < 4; i++) {
+    const angle = (i / 4) * Math.PI * 2;
+    const cone = new THREE.Mesh(triGeo, mat);
+    cone.scale.set(0.9, 1.5, 1.5);
+    const isOuter = Math.sin(angle) * Math.sign(zRot) > 0;
+    cone.position.set(Math.sin(angle) * 0.5, isOuter ? 0.5 : 1, Math.cos(angle) * 0.5);
+    cone.rotation.y = angle;
+    cone.rotation.z = -zRot;
+    cone.castShadow = true;
+    group.add(cone);
+  }
+
+  return group;
+}
+
+[-4.5, 4.5].forEach(x => {
+  const zRot = Math.sign(x) * 15 * DEG;
+  const g = createPillarGroup(zRot);
+  g.position.x = x;
+  g.rotation.z = zRot;
+  mainGroup.add(g);
+});
+
+// トーラス（y軸距離に応じてz軸方向へ頂点歪み加工）
+const torus = new THREE.Mesh(new THREE.TorusGeometry(1, 0.525, 5, 8), mat);
+const torusPos = torus.geometry.attributes.position;
+for (let i = 0; i < torusPos.count; i++) {
+  const t = Math.abs(torusPos.getY(i)) / 1.525;
+  torusPos.setZ(i, torusPos.getZ(i) - t * t);
+}
+torusPos.needsUpdate = true;
+torus.geometry.computeVertexNormals();
+torus.scale.set(0.8, 2, 1);
+torus.rotation.set(-60 * DEG, -15 * DEG, -80 * DEG);
+torus.position.set(-0.9, 5.5, 0.3);
+torus.castShadow = true;
+mainGroup.add(torus);
+
+// 枝
+const branchGeo = new THREE.ConeGeometry(0.4, 3, 3);
+[
+  { rx:  30, ry:   0, rz:   5, x:  4.0, y: 1.0, z:  1.0, h: 4 },
+  { rx: -30, ry:   0, rz:  50, x:  1.7, y: 5.8, z: -0.5, h: 3 },
+  { rx:  -3, ry:   0, rz:   5, x: -5.3, y: 1.5, z:  0.0, h: 3 },
+  { rx: -20, ry: -10, rz: -10, x:  5.0, y: 1.5, z: -1.0, h: 3 },
+].forEach(({ rx, ry, rz, x, y, z, h }) => {
+  const geo = h === 4 ? new THREE.ConeGeometry(0.4, 4, 3) : branchGeo;
+  const branch = new THREE.Mesh(geo, mat);
+  branch.rotation.set(rx * DEG, ry * DEG, rz * DEG);
+  branch.position.set(x, y, z);
+  branch.castShadow = true;
+  mainGroup.add(branch);
+});
+
+// 葉むらリング生成関数
+const leafMats = [
+  new THREE.MeshPhongMaterial({ color: 0x4A744E, flatShading: true }),
+  new THREE.MeshPhongMaterial({ color: 0x50836A, flatShading: true }),
+];
+const mkRng = seed => () => { seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5; return (seed >>> 0) / 0xffffffff; };
+
+function createLeafRing(count, radius, rng) {
+  const group = new THREE.Group();
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const r = radius + (rng() - 0.5) * 0.6;
+    const geo = rng() > 0.5
+      ? new THREE.OctahedronGeometry(0.6 + rng() * 0.8)
+      : new THREE.IcosahedronGeometry(0.9 + rng() * 0.7);
+    const leaf = new THREE.Mesh(geo, leafMats[Math.round(rng())]);
+    leaf.position.set(Math.cos(angle) * r, (rng() - 0.5) * 1.2, Math.sin(angle) * r);
+    leaf.rotation.set(rng() * Math.PI * 2, rng() * Math.PI * 2, rng() * Math.PI * 2);
+    leaf.castShadow = true;
+    group.add(leaf);
+  }
+  return group;
+}
+
+// 下段リング（10個・半径2.4）
+const leafGroup = createLeafRing(10, 2.4, mkRng(42));
+[-4, 4].forEach(x => {
+  const lg = leafGroup.clone();
+  lg.position.set(x, 2.5, 0);
+  lg.rotation.z = Math.sign(x) * 10 * DEG;
+  mainGroup.add(lg);
+});
+
+// 上段リング（8個・半径1.6）
+const leafGroup2 = createLeafRing(8, 1.6, mkRng(99));
+[-4, 4].forEach(x => {
+  const lg = leafGroup2.clone();
+  lg.position.set(x < 0 ? x + 1 : x - 1, 4.4, 0);
+  lg.rotation.z = Math.sign(x) * 30 * DEG;
+  mainGroup.add(lg);
+});
+
+// 十二面体
+const dodecaGeo = new THREE.DodecahedronGeometry(0.5);
+const dodecaMat = new THREE.MeshPhongMaterial({ color: 0xC6A42B, flatShading: true });
+[
+  [3.5, 2.0, -1.5],
+  [-3.5, 1.5, 2.0],
+  [3.5, 3.5, 1.0],
+].forEach(([x, y, z]) => {
+  const d = new THREE.Mesh(dodecaGeo, dodecaMat);
+  d.position.set(x, y, z);
+  d.castShadow = true;
+  mainGroup.add(d);
+});
+
+// カメラ orbit + ズーム
+let dragging = false, prevX = 0, prevY = 0;
+let theta = 0.5, phi = 0.3, R = 8;
+const tgt = new THREE.Vector3();
+
+const updateCam = () => {
+  camera.position.set(
+    tgt.x + R * Math.sin(theta) * Math.cos(phi),
+    tgt.y + R * Math.sin(phi),
+    tgt.z + R * Math.cos(theta) * Math.cos(phi)
+  );
+  camera.lookAt(tgt);
+};
+updateCam();
+
+canvas.addEventListener('mousedown', e => { dragging = true; prevX = e.clientX; prevY = e.clientY; });
+window.addEventListener('mouseup', () => dragging = false);
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  theta -= (e.clientX - prevX) * 0.007;
+  phi = Math.max(0.05, Math.min(1.2, phi + (e.clientY - prevY) * 0.007));
+  prevX = e.clientX; prevY = e.clientY;
+  updateCam();
+});
+canvas.addEventListener('touchstart', e => { dragging = true; prevX = e.touches[0].clientX; prevY = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchend', () => dragging = false);
+window.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  theta -= (e.touches[0].clientX - prevX) * 0.007;
+  phi = Math.max(0.05, Math.min(1.2, phi + (e.touches[0].clientY - prevY) * 0.007));
+  prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
+  updateCam();
+}, { passive: true });
+canvas.addEventListener('wheel', e => {
+  R = Math.max(2, Math.min(30, R + e.deltaY * 0.01));
+  updateCam();
+}, { passive: true });
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+(function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>

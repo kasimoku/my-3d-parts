@@ -1,0 +1,183 @@
+{
+  "version": "1.0",
+  "scene": {
+    "background": "#e4e8ec"
+  },
+  "environment": {
+    "ground": {
+      "geometry": { "type": "PlaneGeometry", "width": 24, "height": 24 },
+      "material": { "type": "MeshPhongMaterial", "color": "#c8ccc8", "flatShading": false },
+      "transform": { "position": [0, -4, 0], "rotation": [-90, 0, 0], "scale": [1, 1, 1] },
+      "receiveShadow": true
+    },
+    "lights": [
+      { "type": "AmbientLight",     "color": "#ffffff", "intensity": 0.2 },
+      { "type": "DirectionalLight", "color": "#fff8f0", "intensity": 0.5, "position": [5, 8, 4],   "castShadow": true },
+      { "type": "DirectionalLight", "color": "#d0e0ff", "intensity": 0.5, "position": [-4, 2, -3], "castShadow": false }
+    ]
+  },
+  "parts": [
+    {
+      "id": "pillarGroup",
+      "type": "group",
+      "instances": [
+        { "position": [-4.5, 0, 0], "rotation": [0, 0, -15] },
+        { "position": [ 4.5, 0, 0], "rotation": [0, 0,  15] }
+      ],
+      "children": [
+        {
+          "id": "hexFrustum_main",
+          "type": "mesh",
+          "geometry": { "type": "CylinderGeometry", "radiusTop": 0.714, "radiusBottom": 1, "height": 4, "segments": 6 },
+          "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+          "transform": { "position": [0, 2, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] },
+          "castShadow": true
+        },
+        {
+          "id": "hexFrustum_sub",
+          "type": "mesh",
+          "geometry": { "type": "CylinderGeometry", "radiusTop": 0.714, "radiusBottom": 1, "height": 4, "segments": 6 },
+          "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+          "transform": {
+            "position": ["±0.2 (mirrored per instance)", 4.5, 0],
+            "rotation": [0, 0, "±12 (mirrored per instance)"],
+            "scale": [0.72, 0.36, 0.72]
+          },
+          "castShadow": true
+        },
+        {
+          "id": "hexFrustum_branch",
+          "type": "mesh",
+          "note": "positive-side instance only",
+          "geometry": { "type": "CylinderGeometry", "radiusTop": 0.714, "radiusBottom": 1, "height": 4, "segments": 6 },
+          "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+          "transform": { "position": [-0.7, 5.5, 0], "rotation": [0, 0, 40], "scale": [0.432, 0.54, 0.432] },
+          "castShadow": true
+        },
+        {
+          "id": "pillarCone",
+          "type": "mesh",
+          "count": 4,
+          "note": "arranged every 90° around y-axis; outer cone (away from center) placed at y=0.5, others at y=1",
+          "geometry": { "type": "ConeGeometry", "radius": 1, "height": 2, "segments": 3 },
+          "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+          "transform": {
+            "position": ["sin(i/4·2π)·0.5", "0.5 or 1", "cos(i/4·2π)·0.5"],
+            "rotation": [0, "i/4·360", "∓15 (counter-rotated per instance)"],
+            "scale": [0.9, 1.5, 1.5]
+          },
+          "castShadow": true
+        }
+      ]
+    },
+    {
+      "id": "torus",
+      "type": "mesh",
+      "geometry": {
+        "type": "TorusGeometry", "radius": 1, "tube": 0.525, "radialSegments": 5, "tubularSegments": 8,
+        "vertexDeform": "z -= (|y| / 1.525)² per vertex"
+      },
+      "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+      "transform": { "position": [-0.9, 5.5, 0.3], "rotation": [-60, -15, -80], "scale": [0.8, 2, 1] },
+      "castShadow": true
+    },
+    {
+      "id": "branch_A",
+      "type": "mesh",
+      "geometry": { "type": "ConeGeometry", "radius": 0.4, "height": 4, "segments": 3 },
+      "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+      "transform": { "position": [4.0, 1.0,  1.0], "rotation": [ 30,   0,   5], "scale": [1, 1, 1] },
+      "castShadow": true
+    },
+    {
+      "id": "branch_B",
+      "type": "mesh",
+      "geometry": { "type": "ConeGeometry", "radius": 0.4, "height": 3, "segments": 3 },
+      "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+      "transform": { "position": [ 1.7, 5.8, -0.5], "rotation": [-30,   0,  50], "scale": [1, 1, 1] },
+      "castShadow": true
+    },
+    {
+      "id": "branch_C",
+      "type": "mesh",
+      "geometry": { "type": "ConeGeometry", "radius": 0.4, "height": 3, "segments": 3 },
+      "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+      "transform": { "position": [-5.3, 1.5,  0.0], "rotation": [ -3,   0,   5], "scale": [1, 1, 1] },
+      "castShadow": true
+    },
+    {
+      "id": "branch_D",
+      "type": "mesh",
+      "geometry": { "type": "ConeGeometry", "radius": 0.4, "height": 3, "segments": 3 },
+      "material": { "type": "MeshPhongMaterial", "color": "#63594C", "flatShading": true },
+      "transform": { "position": [ 5.0, 1.5, -1.0], "rotation": [-20, -10, -10], "scale": [1, 1, 1] },
+      "castShadow": true
+    },
+    {
+      "id": "leafRing_lower",
+      "type": "proceduralGroup",
+      "count": 10,
+      "ringRadius": 2.4,
+      "ringRadiusJitter": 0.3,
+      "yJitter": 0.6,
+      "rngSeed": 42,
+      "geometries": [
+        { "type": "OctahedronGeometry",  "radiusMin": 0.6, "radiusMax": 1.4 },
+        { "type": "IcosahedronGeometry", "radiusMin": 0.9, "radiusMax": 1.6 }
+      ],
+      "materials": [
+        { "type": "MeshPhongMaterial", "color": "#4A744E", "flatShading": true },
+        { "type": "MeshPhongMaterial", "color": "#50836A", "flatShading": true }
+      ],
+      "instances": [
+        { "position": [-4, 2.5, 0], "rotation": [0, 0, -10] },
+        { "position": [ 4, 2.5, 0], "rotation": [0, 0,  10] }
+      ]
+    },
+    {
+      "id": "leafRing_upper",
+      "type": "proceduralGroup",
+      "count": 8,
+      "ringRadius": 1.6,
+      "ringRadiusJitter": 0.3,
+      "yJitter": 0.6,
+      "rngSeed": 99,
+      "geometries": [
+        { "type": "OctahedronGeometry",  "radiusMin": 0.6, "radiusMax": 1.4 },
+        { "type": "IcosahedronGeometry", "radiusMin": 0.9, "radiusMax": 1.6 }
+      ],
+      "materials": [
+        { "type": "MeshPhongMaterial", "color": "#4A744E", "flatShading": true },
+        { "type": "MeshPhongMaterial", "color": "#50836A", "flatShading": true }
+      ],
+      "instances": [
+        { "position": [-3, 4.4, 0], "rotation": [0, 0, -30] },
+        { "position": [ 3, 4.4, 0], "rotation": [0, 0,  30] }
+      ]
+    },
+    {
+      "id": "dodecahedron_A",
+      "type": "mesh",
+      "geometry": { "type": "DodecahedronGeometry", "radius": 0.5 },
+      "material": { "type": "MeshPhongMaterial", "color": "#C6A42B", "flatShading": true },
+      "transform": { "position": [ 3.5, 2.0, -1.5], "rotation": [0, 0, 0], "scale": [1, 1, 1] },
+      "castShadow": true
+    },
+    {
+      "id": "dodecahedron_B",
+      "type": "mesh",
+      "geometry": { "type": "DodecahedronGeometry", "radius": 0.5 },
+      "material": { "type": "MeshPhongMaterial", "color": "#C6A42B", "flatShading": true },
+      "transform": { "position": [-3.5, 1.5,  2.0], "rotation": [0, 0, 0], "scale": [1, 1, 1] },
+      "castShadow": true
+    },
+    {
+      "id": "dodecahedron_C",
+      "type": "mesh",
+      "geometry": { "type": "DodecahedronGeometry", "radius": 0.5 },
+      "material": { "type": "MeshPhongMaterial", "color": "#C6A42B", "flatShading": true },
+      "transform": { "position": [ 3.5, 3.5,  1.0], "rotation": [0, 0, 0], "scale": [1, 1, 1] },
+      "castShadow": true
+    }
+  ]
+}
